@@ -74,35 +74,6 @@ class ConvolutionStack(nn.Module):
         return self.collapse(x.transpose(1, 2))  # (B, D, 1)
 
 
-    # def forward(self, x: torch.Tensor, x_cxt: torch.Tensor) -> torch.Tensor:  # x_cxt kept for signature parity
-    #     x_res = x
-    #     for pool, conv, pad, layernorm, layernorm_out, w1, w2 in zip(
-    #         self.pooling_layers, self.conv_layers, self.padding_params, self.layer_norms, self.layer_norms_out, self.Res_weights1, self.Res_weights2
-    #     ):
-    #         if pad > 0:
-    #             x = F.pad(x.transpose(1, 2), (pad, 0)).transpose(1, 2)
-    #             x_res = F.pad(x_res.transpose(1, 2), (pad, 0)).transpose(1, 2)
-
-    #         x_pool = pool(x.transpose(1, 2)).transpose(1, 2)
-    #         x = layernorm(x)
-    #         x = conv(x)
-    #         x_res = pool(x_res.transpose(1, 2)).transpose(1, 2)
-
-    #         # x_main = in_ln(x)
-
-    #         x = self.gelu(x)
-    #         x = self.dropout(x)
-            
-    #         # g1 = torch.sigmoid(w1)
-    #         # g2 = torch.sigmoid(w2)
-
-    #         # x_main = out_ln(x_main + g1 * x_pool + g2 * x_res)
-    #         x = layernorm_out(x + w1 * x_pool + w2 * x_res)
-
-
-    #     return self.collapse(x.transpose(1, 2))  # (B, D, 1)
-
-
 class MultiHeadConvolution(nn.Module):
     def __init__(self, embed_dim: int, num_conv_heads: int, kernel_size: int, stride: int, dropout: float) -> None:
         super().__init__()
@@ -125,16 +96,15 @@ class MultiHeadConvolution(nn.Module):
 
     def split_heads(self, x: torch.Tensor, batch_size: int) -> torch.Tensor:
         x = x.view(batch_size, -1, self.num_conv_heads, self.head_dim)
-        return x.transpose(1, 2)  # (B, H, L, Dh)
+        return x.transpose(1, 2)  
 
     def Conv_layer(self, x: torch.Tensor, mask: torch.Tensor | None = None) -> torch.Tensor:
-        # x: (B, H, L, Dh)
         outputs = []
         for h, conv in enumerate(self.convs):
-            head = x[:, h, :, :].transpose(1, 2)   # (B, Dh, L)
-            out_h = conv(head).transpose(1, 2)     # (B, L_out, Dh)
+            head = x[:, h, :, :].transpose(1, 2)  
+            out_h = conv(head).transpose(1, 2)    
             outputs.append(out_h)
-        return torch_cat(outputs, dim=-1)           # (B, L_out, D)
+        return torch_cat(outputs, dim=-1)           
 
     def forward(self, input: torch.Tensor, mask: torch.Tensor | None = None) -> torch.Tensor:
         B = input.size(0)
@@ -188,15 +158,12 @@ class ConvRec(nn.Module):
             dropout_prob=dropout_prob,
         )
         self.item_layernorm = LayerNorm(hidden_dim + (icontext_dim - 3))
-        self.item_layernorm1 = LayerNorm(hidden_dim)  # kept for parity though unused in forward
-        self.item_layernorm_feat = LayerNorm(hidden_dim)  # kept for parity though unused
 
         self.in_lin = nn.Linear(hidden_dim + (icontext_dim - 3), hidden_dim)
         self.cxt_layer = nn.Linear(20, hidden_dim)
         self.time_linear = nn.Linear(hidden_dim, 1)
         self.dropout = nn.Dropout(p=dropout_prob)
 
-        # Only the stack used in forward is instantiated (others removed as redundant)
         self.stacked_multihead_conv = ConvolutionStack(
             embed_dim=hidden_dim,
             num_conv_heads=num_conv_heads,

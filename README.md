@@ -11,7 +11,7 @@ python preprocess.py prepare --dname men
 python preprocess.py prepare --dname game
 ```
 
-Run the code:
+Run the code: 
 
 ```bash
 python entry.py convrec/men

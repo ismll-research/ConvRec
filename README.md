@@ -1,3 +1,13 @@
+## Rethinking Convolutional Networks for Attribute-Aware Sequential Recommendation
+> Shereen Elsayed*, Ngoc Son Le*, Ahmed Rashed, and Lars Schmidt-Thieme  
+> \* Equal contribution
+
+ConvRec is a convolution-based model for attribute- and context-aware sequential recommendation. Instead of relying on self-attention to aggregate the full user sequence, ConvRec uses hierarchical down-scaling convolutional layers to progressively compress a user’s interaction history into a compact sequence representation. The model is evaluated on four Amazon benchmark datasets: `fashion`, `beauty`, `men`, and `game`.
+
+## Data
+
+This project uses the data format from the CARCA repository. 
+
 * raw dataset directory: `./raw/`
     * put [CARCA/Data](https://github.com/ahmedrashed-ml/CARCA) as `./raw/CARCA/`
 * data directory: `./data/`
@@ -16,4 +26,14 @@ Run the code:
 
 ```bash
 python entry.py convrec/men
+```
+
+## Citation
+```
+@inproceedings{elsayed2026convrec,
+  title     = {Rethinking Convolutional Networks for Attribute-Aware Sequential Recommendation},
+  author    = {Elsayed, Shereen and Le, Ngoc Son and Rashed, Ahmed and Schmidt-Thieme, Lars},
+  booktitle = {Proceedings of IJCAI-ECAI},
+  year      = {2026}
+}
 ```

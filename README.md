@@ -7,7 +7,7 @@
 ConvRec is a convolution-based model for attribute- and context-aware sequential recommendation. Instead of relying on self-attention to aggregate the full user sequence, ConvRec uses hierarchical down-scaling convolutional layers to progressively compress a user’s interaction history into a compact sequence representation. The model is evaluated on four Amazon benchmark datasets: `fashion`, `beauty`, `men`, and `game`.
 
 <p align="center">
-  <img src="ConvRec.png" width="750">
+  <img src="ConvRec.svg" width="750">
 </p>
 
 <p align="center">
